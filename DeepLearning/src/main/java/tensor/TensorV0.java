@@ -1,5 +1,7 @@
 package tensor;
 
+import java.text.DecimalFormat;
+
 /** 
  * A basic 2D tensor implementation.
  * 
@@ -43,6 +45,13 @@ public class TensorV0 {
                 data[i][j] = inputData[i][j];
             }
         }
+    }
+    
+    public double value(int r, int c) {
+        if (r < 0 || r >= nrows || c < 0 || c >= ncols) {
+            throw new IllegalArgumentException("Invalid data index");
+        }
+        return data[r][c];
     }
     
     public TensorV0 add(TensorV0 t) {
@@ -340,5 +349,27 @@ public class TensorV0 {
         }
         
         return result;
+    }
+    
+    public String toString() {
+        return toString(3);
+    }
+
+    public String toString(int decimalPrecision) {
+        StringBuilder sb = new StringBuilder();
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(decimalPrecision);
+        df.setMinimumFractionDigits(decimalPrecision);
+        
+        for (int i = 0; i < nrows; i++) {
+            for (int j = 0; j < ncols; j++) {
+                sb.append(df.format(data[i][j]));
+                sb.append(" ");
+            }
+            if (i != nrows-1) {
+                sb.append(System.lineSeparator());
+            }
+        }
+        return sb.toString();
     }
 }
