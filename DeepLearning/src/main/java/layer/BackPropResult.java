@@ -4,7 +4,7 @@ import java.util.Map;
 import tensor.TensorV0;
 
 /**
- * Basic encapsulation object for the backpropagation of a single layer.
+ * Basic encapsulation object for the backward propagation of a single layer.
  * 
  * dA represents the values passed back to the previous layer
  * dParameters is a map containing computed derivative terms relevant for

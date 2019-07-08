@@ -57,20 +57,19 @@ public class FullyConnected {
      * @param x Vectorized inputs 
      * @return Returns a map containing the post and pre-activation outputs
      */
-    public Map<String,TensorV0> forwardPropagate(TensorV0 x) {
+    public ForwardPropResult forwardPropagate(TensorV0 x) {
         TensorV0 z = weights.matrixMultiply(x).add(bias);
         TensorV0 a = activation.apply(z);
         
-        HashMap<String, TensorV0> results = new HashMap<>();
-        results.put(OLD_ACTIVATION, x);
-        results.put(PRE_ACTIVATION, z);
-        results.put(POST_ACTIVATION, a);
+        HashMap<String, TensorV0> cache = new HashMap<>();
+        cache.put(OLD_ACTIVATION, x);
+        cache.put(PRE_ACTIVATION, z);
         
-        return results;
+        return new ForwardPropResult(a, cache);
     }
     
     /**
-     * Computes derivatives needed for backpropagation in previous layers.
+     * Computes derivatives needed for backward propagation in previous layers.
      * 
      * Formulas:
      * dW = 1/m * dZ*A_prev^T
@@ -80,9 +79,9 @@ public class FullyConnected {
      * @param cache Map containing the activation values, as output by forwardPropagate
      * @return 
      */
-    public BackPropResult backwardPropagate(TensorV0 dA, Map<String, TensorV0> cache) {
-        var z = cache.get(PRE_ACTIVATION);
-        var aOld = cache.get(OLD_ACTIVATION);
+    public BackPropResult backwardPropagate(TensorV0 dA, ForwardPropResult cache) {
+        var z = cache.cache.get(PRE_ACTIVATION);
+        var aOld = cache.cache.get(OLD_ACTIVATION);
         var factor = TensorV0.constant(1.0 / aOld.ncols);
         
         var dZ = activation.derivateApply(dA, z);
@@ -95,5 +94,25 @@ public class FullyConnected {
         results.put(D_BIAS, db);
         
         return new BackPropResult(daPrev, results);
+    }
+    
+    public void updateParameters(Map<String, TensorV0> deltaParameters) {
+        weights = weights.add(deltaParameters.get(D_WEIGHTS));
+        bias = bias.add(deltaParameters.get(D_BIAS));
+    }
+    
+    public String toString() {
+        var sb = new StringBuilder();
+        sb.append("Fully Connected Layer");
+        sb.append(System.lineSeparator());
+        sb.append("Weights:");
+        sb.append(System.lineSeparator());
+        sb.append(weights);
+        sb.append(System.lineSeparator());
+        sb.append("Bias:");
+        sb.append(System.lineSeparator());
+        sb.append(bias);
+        
+        return sb.toString();
     }
 }
