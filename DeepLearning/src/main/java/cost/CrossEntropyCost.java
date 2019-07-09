@@ -6,7 +6,7 @@ import tensor.TensorV0;
  * Computes cross entropy cost and cost derivative
  * @author tyler
  */
-public class CrossEntropyCost {
+public class CrossEntropyCost implements Cost {
     
     /**
      * Computes the cross entropy cost function for a set of data points.
@@ -15,6 +15,7 @@ public class CrossEntropyCost {
      * @param groundTruth Ground truth tensor - each column is a single example
      * @return Cost
      */
+    @Override
     public double computeCost(TensorV0 prediction, TensorV0 groundTruth) {
         var m = prediction.ncols;
         
@@ -37,6 +38,7 @@ public class CrossEntropyCost {
      * @param groundTruth Ground truth tensor - each column is a single example
      * @return Tensor of derivative terms
      */
+    @Override
     public TensorV0 computeCostDerivative(TensorV0 prediction, TensorV0 groundTruth) {
         var oneMinusPrediction = TensorV0.one().subtract(prediction);
         var oneMinusTruth = TensorV0.one().subtract(groundTruth);
