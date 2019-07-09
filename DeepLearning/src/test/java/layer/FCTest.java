@@ -5,7 +5,10 @@ import activation.ActivationType;
 import cost.CrossEntropyCost;
 import java.util.ArrayList;
 import network.NeuralNetwork;
+import optimize.Adam;
 import optimize.GradientDescent;
+import optimize.Momentum;
+import optimize.RMSProp;
 import tensor.TensorV0;
 
 public class FCTest {
@@ -65,8 +68,14 @@ public class FCTest {
         var untrainedList = new ArrayList<FullyConnected>();
         untrainedList.add(untrainedLayer);
         
+        // Confirmed to work:
+        //   GradientDescent(0.12)
+        //   Momentum(0.12, 0.9)
+        //   RMSProp(0.12, 0.999)
+        //   Adam(0.06, 0.9, 0.999) - lower learning rate required for convergence
+        var trainingOptimizer = new Adam(0.06, 0.9, 0.999);
         var trainableNetwork = 
-                new NeuralNetwork(untrainedList, costFunction, optimizer);
+                new NeuralNetwork(untrainedList, costFunction, trainingOptimizer);
         
         var initialCost = trainableNetwork.evaluate(inputTensor, groundTruths);
         

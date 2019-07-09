@@ -8,9 +8,9 @@ import tensor.TensorV0;
  * @author tyler
  */
 public class Momentum implements Optimizer {
-    final double learningRate;
-    final TensorV0 beta;
-    final Map<String, TensorV0> momentums;
+    private final double learningRate;
+    private final TensorV0 beta;
+    private final Map<String, TensorV0> momentums;
     
     public Momentum(double learningRate, double beta) {
         this.learningRate = learningRate;

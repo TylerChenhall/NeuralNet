@@ -8,7 +8,7 @@ import tensor.TensorV0;
  * @author tyler
  */
 public class GradientDescent implements Optimizer {
-    final double learningRate;
+    private final double learningRate;
     
     public GradientDescent(double learningRate) {
         this.learningRate = learningRate;
