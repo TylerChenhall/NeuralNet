@@ -1,21 +1,21 @@
 package network;
 
-import cost.CrossEntropyCost;
+import cost.Cost;
 import java.util.ArrayList;
 import java.util.List;
 import layer.BackPropResult;
 import layer.ForwardPropResult;
 import layer.FullyConnected;
-import optimize.GradientDescent;
+import optimize.Optimizer;
 import tensor.TensorV0;
 
 public class NeuralNetwork {
 
-    private final CrossEntropyCost costFunction;
+    private final Cost costFunction;
     private final List<FullyConnected> layers;
-    private final GradientDescent optimizer;
+    private final Optimizer optimizer;
 
-    public NeuralNetwork(List<FullyConnected> layers, CrossEntropyCost costFunction, GradientDescent optimizer) {
+    public NeuralNetwork(List<FullyConnected> layers, Cost costFunction, Optimizer optimizer) {
         this.layers = layers;
         this.costFunction = costFunction;
         this.optimizer = optimizer;
