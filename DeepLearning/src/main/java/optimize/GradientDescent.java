@@ -2,6 +2,7 @@ package optimize;
 
 import java.util.HashMap;
 import java.util.Map;
+import tensor.Tensor;
 import tensor.TensorV0;
 
 /**
@@ -22,8 +23,8 @@ public class GradientDescent implements Optimizer {
      * @return Map of parameter updates, using the same keys as the input
      */
     @Override
-    public Map<String, TensorV0> computeParameterUpdates(Map<String, TensorV0> dParameters, int identifier) {
-        var parameterUpdates = new HashMap<String, TensorV0>();
+    public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier) {
+        var parameterUpdates = new HashMap<String, Tensor>();
         var factor = TensorV0.constant(-1.0 * learningRate);
         
         for (var key : dParameters.keySet()) {

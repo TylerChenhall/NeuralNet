@@ -1,5 +1,6 @@
 package cost;
 
+import tensor.Tensor;
 import tensor.TensorV0;
 
 /**
@@ -8,18 +9,18 @@ import tensor.TensorV0;
 public class LeastSquaresCost implements Cost {
 
     @Override
-    public double computeCost(TensorV0 prediction, TensorV0 groundTruth) {
-        var m = prediction.ncols;
+    public double computeCost(Tensor prediction, Tensor groundTruth) {
+        var m = prediction.mDim();
         
         var costTerms = prediction.subtract(groundTruth)
                 .power(TensorV0.constant(2.0));
-        var totalCost = costTerms.rowSum().columnSum();
+        var totalCost = costTerms.allSum();
         var averageCost = totalCost.multiply(TensorV0.constant(0.5 / m));
         return averageCost.value(0, 0);
     }
 
     @Override
-    public TensorV0 computeCostDerivative(TensorV0 prediction, TensorV0 groundTruth) {
+    public Tensor computeCostDerivative(Tensor prediction, Tensor groundTruth) {
         // Drop the 1/m factor
         var derivatives = prediction.subtract(groundTruth);
         

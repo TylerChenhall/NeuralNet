@@ -1,12 +1,13 @@
 package cost;
 
+import tensor.Tensor;
 import tensor.TensorV0;
 
 /**
  * @author tyler
  */
 public interface Cost {
-    public double computeCost(TensorV0 prediction, TensorV0 groundTruth);
+    public double computeCost(Tensor prediction, Tensor groundTruth);
     
-    public TensorV0 computeCostDerivative(TensorV0 prediction, TensorV0 groundTruth);
+    public Tensor computeCostDerivative(Tensor prediction, Tensor groundTruth);
 }

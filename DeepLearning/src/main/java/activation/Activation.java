@@ -1,5 +1,6 @@
 package activation;
 
+import tensor.Tensor;
 import tensor.TensorV0;
 
 public class Activation {
@@ -9,7 +10,7 @@ public class Activation {
         this.type = type;
     }
     
-    public TensorV0 apply(TensorV0 input) {
+    public Tensor apply(Tensor input) {
         switch(type) {
             case Linear:
                 return input;
@@ -18,8 +19,11 @@ public class Activation {
             case Sigmoid:
                 return input.sigmoid();
             case Softmax:
-                TensorV0 exponentials = input.exponentiate();
-                TensorV0 sums = exponentials.columnSum();
+                if (!(input instanceof TensorV0)) {
+                    throw new IllegalArgumentException("Softmax only supports TensorV0");
+                }
+                var exponentials = input.exponentiate();
+                TensorV0 sums = ((TensorV0) exponentials).columnSum();
                 return exponentials.divideBy(sums);
             case Tanh:
                 return input.tanh();
@@ -28,7 +32,7 @@ public class Activation {
         }
     }
     
-    public TensorV0 derivateApply(TensorV0 dInput, TensorV0 cacheZ) {
+    public Tensor derivateApply(Tensor dInput, Tensor cacheZ) {
         switch(type) {
             case Linear:
                 return dInput;

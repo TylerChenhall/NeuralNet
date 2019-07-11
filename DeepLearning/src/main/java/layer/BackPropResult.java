@@ -1,7 +1,7 @@
 package layer;
 
 import java.util.Map;
-import tensor.TensorV0;
+import tensor.Tensor;
 
 /**
  * Basic encapsulation object for the backward propagation of a single layer.
@@ -13,10 +13,10 @@ import tensor.TensorV0;
  * @author tyler
  */
 public class BackPropResult {
-    public final TensorV0 dA;
-    public final Map<String, TensorV0> dParameters;
+    public final Tensor dA;
+    public final Map<String, Tensor> dParameters;
     
-    public BackPropResult(TensorV0 dA, Map<String, TensorV0> dParameters) {
+    public BackPropResult(Tensor dA, Map<String, Tensor> dParameters) {
         this.dA = dA;
         this.dParameters = dParameters;
     }

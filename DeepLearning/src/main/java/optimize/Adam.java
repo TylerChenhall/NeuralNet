@@ -2,6 +2,7 @@ package optimize;
 
 import java.util.HashMap;
 import java.util.Map;
+import tensor.Tensor;
 import tensor.TensorV0;
 
 /**
@@ -20,8 +21,8 @@ public class Adam implements Optimizer {
     private final TensorV0 beta1;
     private final TensorV0 beta2;
     private final TensorV0 epsilon = TensorV0.constant(1.0e-8);
-    private final Map<String, TensorV0> momentums;
-    private final Map<String, TensorV0> variances;
+    private final Map<String, Tensor> momentums;
+    private final Map<String, Tensor> variances;
     
     /**
      * Construct an ADAM optimizer.
@@ -44,8 +45,8 @@ public class Adam implements Optimizer {
     }
     
     @Override
-    public Map<String, TensorV0> computeParameterUpdates(Map<String, TensorV0> dParameters, int identifier) {
-        var parameterUpdates = new HashMap<String, TensorV0>();
+    public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier) {
+        var parameterUpdates = new HashMap<String, Tensor>();
         var factor = TensorV0.constant(-1.0 * learningRate);
         
         for (var key : dParameters.keySet()) {

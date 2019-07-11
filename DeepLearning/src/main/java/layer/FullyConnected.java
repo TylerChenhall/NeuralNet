@@ -3,6 +3,7 @@ package layer;
 import activation.Activation;
 import java.util.HashMap;
 import java.util.Map;
+import tensor.Tensor;
 import tensor.TensorV0;
 import tensor.TensorV0Builder;
 
@@ -57,12 +58,16 @@ public class FullyConnected {
      * @param x Vectorized inputs 
      * @return Returns a map containing the post and pre-activation outputs
      */
-    public ForwardPropResult forwardPropagate(TensorV0 x) {
-        TensorV0 z = weights.matrixMultiply(x).add(bias);
-        TensorV0 a = activation.apply(z);
+    public ForwardPropResult forwardPropagate(Tensor x) {
+        if (!(x instanceof TensorV0)) {
+            throw new IllegalArgumentException("Input for fully connected layers must be 2D Tensors.");
+        }
+        var aOld = (TensorV0) x;
+        var z = weights.matrixMultiply(aOld).add(bias);
+        var a = activation.apply(z);
         
-        HashMap<String, TensorV0> cache = new HashMap<>();
-        cache.put(OLD_ACTIVATION, x);
+        HashMap<String, Tensor> cache = new HashMap<>();
+        cache.put(OLD_ACTIVATION, aOld);
         cache.put(PRE_ACTIVATION, z);
         
         return new ForwardPropResult(a, cache);
@@ -79,26 +84,26 @@ public class FullyConnected {
      * @param cache Map containing the activation values, as output by forwardPropagate
      * @return 
      */
-    public BackPropResult backwardPropagate(TensorV0 dA, ForwardPropResult cache) {
+    public BackPropResult backwardPropagate(Tensor dA, ForwardPropResult cache) {
         var z = cache.cache.get(PRE_ACTIVATION);
-        var aOld = cache.cache.get(OLD_ACTIVATION);
+        var aOld = (TensorV0) cache.cache.get(OLD_ACTIVATION);
         var factor = TensorV0.constant(1.0 / aOld.ncols);
         
-        var dZ = activation.derivateApply(dA, z);
+        var dZ = (TensorV0) activation.derivateApply(dA, z);
         var dW = dZ.matrixMultiply(aOld.transpose()).multiply(factor);
         var db = dZ.rowSum().multiply(factor);
         
         TensorV0 daPrev = weights.transpose().matrixMultiply(dZ);
-        HashMap<String, TensorV0> results = new HashMap<>();
+        HashMap<String, Tensor> results = new HashMap<>();
         results.put(D_WEIGHTS, dW);
         results.put(D_BIAS, db);
         
         return new BackPropResult(daPrev, results);
     }
     
-    public void updateParameters(Map<String, TensorV0> deltaParameters) {
-        weights = weights.add(deltaParameters.get(D_WEIGHTS));
-        bias = bias.add(deltaParameters.get(D_BIAS));
+    public void updateParameters(Map<String, Tensor> deltaParameters) {
+        weights = (TensorV0) weights.add(deltaParameters.get(D_WEIGHTS));
+        bias = (TensorV0) bias.add(deltaParameters.get(D_BIAS));
     }
     
     public String toString() {

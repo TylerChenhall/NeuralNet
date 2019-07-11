@@ -1,11 +1,11 @@
 package optimize;
 
 import java.util.Map;
-import tensor.TensorV0;
+import tensor.Tensor;
 
 /**
  * @author tyler
  */
 public interface Optimizer {
-    public Map<String, TensorV0> computeParameterUpdates(Map<String, TensorV0> dParameters, int identifier);
+    public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier);
 }

@@ -2,6 +2,7 @@ package optimize;
 
 import java.util.HashMap;
 import java.util.Map;
+import tensor.Tensor;
 import tensor.TensorV0;
 
 /**
@@ -10,7 +11,7 @@ import tensor.TensorV0;
 public class Momentum implements Optimizer {
     private final double learningRate;
     private final TensorV0 beta;
-    private final Map<String, TensorV0> momentums;
+    private final Map<String, Tensor> momentums;
     
     public Momentum(double learningRate, double beta) {
         this.learningRate = learningRate;
@@ -22,8 +23,8 @@ public class Momentum implements Optimizer {
     }
     
     @Override
-    public Map<String, TensorV0> computeParameterUpdates(Map<String, TensorV0> dParameters, int identifier) {
-        var parameterUpdates = new HashMap<String, TensorV0>();
+    public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier) {
+        var parameterUpdates = new HashMap<String, Tensor>();
         var factor = TensorV0.constant(-1.0 * learningRate);
         
         for (var key : dParameters.keySet()) {

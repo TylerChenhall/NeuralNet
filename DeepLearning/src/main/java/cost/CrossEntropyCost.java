@@ -1,5 +1,6 @@
 package cost;
 
+import tensor.Tensor;
 import tensor.TensorV0;
 
 /**
@@ -16,15 +17,15 @@ public class CrossEntropyCost implements Cost {
      * @return Cost
      */
     @Override
-    public double computeCost(TensorV0 prediction, TensorV0 groundTruth) {
-        var m = prediction.ncols;
+    public double computeCost(Tensor prediction, Tensor groundTruth) {
+        var m = prediction.mDim();
         
         var oneMinusPrediction = TensorV0.one().subtract(prediction);
         var oneMinusTruth = TensorV0.one().subtract(groundTruth);
         
         var costTerms = groundTruth.multiply(prediction.log())
                 .add(oneMinusTruth.multiply(oneMinusPrediction.log()));
-        var totalCost = costTerms.rowSum().columnSum();
+        var totalCost = costTerms.allSum();
         var averageCost = totalCost.multiply(TensorV0.constant(-1.0 / m));
         return averageCost.value(0, 0);
     }
@@ -39,7 +40,7 @@ public class CrossEntropyCost implements Cost {
      * @return Tensor of derivative terms
      */
     @Override
-    public TensorV0 computeCostDerivative(TensorV0 prediction, TensorV0 groundTruth) {
+    public Tensor computeCostDerivative(Tensor prediction, Tensor groundTruth) {
         var oneMinusPrediction = TensorV0.one().subtract(prediction);
         var oneMinusTruth = TensorV0.one().subtract(groundTruth);
         

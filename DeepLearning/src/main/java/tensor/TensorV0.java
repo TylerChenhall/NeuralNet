@@ -15,7 +15,7 @@ import java.util.function.Function;
  *   
  * @author tyler
  */
-public class TensorV0 {
+public class TensorV0 extends Tensor {
     public final int nrows;
     public final int ncols;
     private double[][] data;
@@ -49,40 +49,17 @@ public class TensorV0 {
         }
     }
     
-    public double value(int r, int c) {
+    @Override
+    public double value(int... position) {
+        if (position.length != 2) {
+            throw new IllegalArgumentException("Invalid position for 2D Tensor");
+        }
+        int r = position[0];
+        int c = position[1];
         if (r < 0 || r >= nrows || c < 0 || c >= ncols) {
             throw new IllegalArgumentException("Invalid data index");
         }
         return data[r][c];
-    }
-    
-    public TensorV0 add(TensorV0 t) {
-        return applyBinary(this, t, (d1, d2) -> d1 + d2);
-    }
-
-    public TensorV0 subtract(TensorV0 t) {
-        return applyBinary(this, t, (d1, d2) -> d1 - d2);
-    }
-
-    public TensorV0 multiply(TensorV0 t) {
-        return applyBinary(this, t, (d1, d2) -> d1 * d2);
-    }
-
-    public TensorV0 divideBy(TensorV0 t) {
-        return applyBinary(this, t, (d1, d2) -> d1 / d2);
-    }
-    
-    /**
-     * Implements element-wise >= operator.
-     * @param t
-     * @return  The result is an indicator TensorV0, with 1.0 indicating true.
-     */
-    public TensorV0 atLeast(TensorV0 t) {
-        return applyBinary(this, t, (d1, d2) -> d1 >= d2 ? 1.0 : 0.0);
-    }
-
-    public TensorV0 power(TensorV0 t) {
-        return applyBinary(this, t, Math::pow);
     }
     
     public TensorV0 matrixMultiply(TensorV0 t) {
@@ -117,22 +94,6 @@ public class TensorV0 {
         
         return result;
     }
-
-    public TensorV0 exponentiate() {
-        return applyUnary(this, Math::exp);
-    }
-    
-    public TensorV0 log() {
-        return applyUnary(this, Math::log);
-    }
-    
-    public TensorV0 negate() {
-        return applyUnary(this, d -> -d);
-    }
-    
-    public TensorV0 relu() {
-        return applyUnary(this, d -> Math.max(0, d));
-    }
     
     /**
      * Computes a Tensor by summing the values in each row.
@@ -149,14 +110,6 @@ public class TensorV0 {
         
         return result;
     }
-    
-    public TensorV0 sigmoid() {
-        return applyUnary(this, d -> 1.0 / (1.0 + Math.exp(-d)));
-    }
-    
-    public TensorV0 tanh() {
-        return applyUnary(this, Math::tanh);
-    }
 
     public TensorV0 transpose() {
         TensorV0 result = new TensorV0(ncols, nrows);
@@ -169,6 +122,24 @@ public class TensorV0 {
         return result;
     }
     
+    @Override
+    public Tensor allSum() {
+        return this.rowSum().columnSum();
+    }
+    
+    /**
+     * mDim implementation.
+     * 
+     * TODO: I think m should really be the first dimension (nrows). However, this
+     * would require me to make some changes first.
+     * @return 
+     */
+    @Override
+    public int mDim() {
+        return ncols;
+    }
+    
+    @Override
     public String shape() {
         return "(" + nrows + ", " + ncols + ")";
     }
@@ -182,20 +153,23 @@ public class TensorV0 {
         return new TensorV0(data);
     }
     
-    private static TensorV0 applyUnary(TensorV0 input, Function<Double,Double> function) {
-        TensorV0 result = new TensorV0(input.nrows, input.ncols);
+    @Override
+    public TensorV0 applyUnary(Function<Double,Double> function) {
+        TensorV0 result = new TensorV0(nrows, ncols);
         
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = function.apply(input.data[i][j]);
+        for (int i = 0; i < nrows; i++) {
+            for (int j = 0; j < ncols; j++) {
+                result.data[i][j] = function.apply(data[i][j]);
             }
         }
         
         return result;
     }
     
-    private static TensorV0 applyBinary(TensorV0 left, TensorV0 right, BiFunction<Double, Double, Double> function) {
-        TensorV0[] tensors = broadcastify(left, right);
+    @Override
+    public TensorV0 applyBinary(Tensor right, BiFunction<Double, Double, Double> function) {
+        TensorV0 casted = (TensorV0) right;
+        TensorV0[] tensors = broadcastify(this, casted);
         
         TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
         

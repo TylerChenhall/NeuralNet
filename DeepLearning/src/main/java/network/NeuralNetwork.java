@@ -7,6 +7,7 @@ import layer.BackPropResult;
 import layer.ForwardPropResult;
 import layer.FullyConnected;
 import optimize.Optimizer;
+import tensor.Tensor;
 import tensor.TensorV0;
 
 public class NeuralNetwork {
@@ -21,7 +22,7 @@ public class NeuralNetwork {
         this.optimizer = optimizer;
     }
 
-    public ArrayList<Double> train(TensorV0 dataFeatures, TensorV0 dataLabels, int epochs) {
+    public ArrayList<Double> train(Tensor dataFeatures, Tensor dataLabels, int epochs) {
         var epochCosts = new ArrayList<Double>();
         for (int i = 0; i < epochs; i++) {
             // TODO: at some point, implement mini-batch support
@@ -67,7 +68,7 @@ public class NeuralNetwork {
      * @param dataFeatures TensorV0 of data points (1 point per column)
      * @return TensorV0 of predictions (1 prediction per column)
      */
-    public TensorV0 predict(TensorV0 dataFeatures) {
+    public Tensor predict(Tensor dataFeatures) {
         var activation = dataFeatures;
         for (FullyConnected layer : layers) {
             var layerResult = layer.forwardPropagate(activation);
