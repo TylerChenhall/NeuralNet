@@ -1,6 +1,7 @@
 package tensor;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -16,15 +17,13 @@ import java.util.function.Function;
  * @author tyler
  */
 public class TensorV0 extends Tensor {
+    // TODO: probably remove nrows, ncols.
     public final int nrows;
     public final int ncols;
     private double[][] data;
     
     public TensorV0(int nr, int nc) {
-        if (nr <= 0 || nc <= 0) {
-            throw new IllegalArgumentException("Tensor dimensions must be positive. Found (nr, nc) = (" +
-                    nr + ", " + nc + ").");
-        }
+        super(List.of(nr, nc));
         nrows = nr;
         ncols = nc;
         data = new double[nr][nc];
@@ -36,6 +35,7 @@ public class TensorV0 extends Tensor {
      * @param inputData 
      */
     public TensorV0(double[][] inputData) {
+        super(List.of(inputData.length, inputData[0].length));
         nrows = inputData.length;
         ncols = inputData[0].length;
         data = new double[nrows][ncols];
@@ -54,12 +54,15 @@ public class TensorV0 extends Tensor {
         if (position.length != 2) {
             throw new IllegalArgumentException("Invalid position for 2D Tensor");
         }
-        int r = position[0];
-        int c = position[1];
-        if (r < 0 || r >= nrows || c < 0 || c >= ncols) {
-            throw new IllegalArgumentException("Invalid data index");
-        }
-        return data[r][c];
+        return data[position[0]][position[1]];
+    }
+    
+    @Override
+    public double value2(int... position) {
+        int n = position.length;
+        int r = position[n-2];
+        int c = position[n-1];
+        return data[r % nrows][c % ncols];
     }
     
     public TensorV0 matrixMultiply(TensorV0 t) {
@@ -139,11 +142,6 @@ public class TensorV0 extends Tensor {
         return ncols;
     }
     
-    @Override
-    public String shape() {
-        return "(" + nrows + ", " + ncols + ")";
-    }
-    
     public static TensorV0 one() {
         return constant(1.);
     }
@@ -167,95 +165,6 @@ public class TensorV0 extends Tensor {
     }
     
     @Override
-    public TensorV0 applyBinary(Tensor right, BiFunction<Double, Double, Double> function) {
-        TensorV0 casted = (TensorV0) right;
-        TensorV0[] tensors = broadcastify(this, casted);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = function.apply(tensors[0].data[i][j],tensors[1].data[i][j]);
-            }
-        }
-        
-        return result;
-    }
-    
-    /** 
-     * Creates temporary broadcasted TensorV0s to ease element-wise operations.
-     * 
-     * This isn't the most efficient, but makes implementation simpler for now.
-     * 
-     * @param a
-     * @param b
-     * @return 
-     */
-    private static TensorV0[] broadcastify(TensorV0 a, TensorV0 b) {
-        // First, check if the dimensions are compatible for element-wise ops
-        // They're compatible if they have the same shape in each dimension or 1.
-        boolean compatible = true;
-        if (!(a.nrows == b.nrows || a.nrows == 1 || b.nrows == 1)) {
-            compatible = false;
-        }
-        if (!(a.ncols == b.ncols || a.ncols == 1 || b.ncols == 1)) {
-            compatible = false;
-        }
-        
-        if (!compatible) {
-            throw new IllegalArgumentException("Input Tensors are not compatible for element-wise operations.");
-        }
-        
-        // Prepare for broadcasting by extending the rows and columns as needed.
-        if (a.nrows == 1 && b.nrows != 1) {
-            a = rowBroadcast(a, b.nrows);
-        } else if (a.nrows != 1 && b.nrows == 1) {
-            b = rowBroadcast(b, a.nrows);
-        }
-        if (a.ncols == 1 && b.ncols != 1) {
-            a = colBroadcast(a, b.ncols);
-        } else if (a.ncols != 1 && b.ncols == 1) {
-            b = colBroadcast(b, a.ncols);
-        }
-        
-        TensorV0[] tensors = {a, b};
-        return tensors;
-    }
-    
-    /** 
-     * Copies the given row vector nrows times.
-     * @param input
-     * @param nrows
-     * @return 
-     */
-    private static TensorV0 rowBroadcast(TensorV0 input, int nrows) {
-        TensorV0 result = new TensorV0(nrows, input.ncols);
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = input.data[0][j];
-            }
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Copies the given column vector ncols times.
-     * @param input
-     * @param ncols
-     * @return 
-     */
-    private static TensorV0 colBroadcast(TensorV0 input, int ncols) {
-        TensorV0 result = new TensorV0(input.nrows, ncols);
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = input.data[i][0];
-            }
-        }
-        
-        return result;
-    }
-    
     public String toString() {
         return toString(3);
     }

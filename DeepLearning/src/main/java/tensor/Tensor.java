@@ -1,21 +1,27 @@
 package tensor;
 
-import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /** 
- * A basic 2D tensor implementation.
+ * A generic Tensor interface.
  * 
- * TODO: consider adding a few more operations, such as
- *   concatenation or subsetting
- *   negation
- *   trig functions
- *   get / set operations
- *   
  * @author tyler
  */
 public abstract class Tensor {
+    private final List<Integer> dimensions;
+    
+    public Tensor(List<Integer> dimensions) {
+        for (var dim : dimensions) {
+            if (dim <= 0) {
+                throw new IllegalArgumentException("Tensor dimensions must be positive.");
+            }
+        }
+        this.dimensions = new ArrayList<>(dimensions);
+    }
+    
     public Tensor add(Tensor t) {
         return applyBinary(t, (d1, d2) -> d1 + d2);
     }
@@ -80,12 +86,38 @@ public abstract class Tensor {
      */
     public abstract int mDim();
     
+    /**
+     * Return the value in the specified position of the Tensor.
+     * 
+     * Position arguments must be valid (within range, correct dimensionality).
+     * 
+     * @param position
+     * @return 
+     */
     public abstract double value(int... position);
     
-    // TODO: It's probably desirable to implement shape with a different interface.
-    public abstract String shape();
+    /**
+     * Return a value, even if position arguments don't fit the data object.
+     * 
+     * Essentially, this means two things:
+     *   Apply the modulus operator when position indices are too big
+     *   Ignore extra position indices
+     * 
+     * To mesh well with broadcasting, early indices are ignored if there are
+     * too many.
+     * 
+     * @param position
+     * @return 
+     */
+    public abstract double value2(int... position);
+    
+    public List<Integer> shape() {
+        return new ArrayList<>(dimensions);
+    }
     
     public abstract Tensor applyUnary(Function<Double,Double> function);
     
-    public abstract Tensor applyBinary(Tensor right, BiFunction<Double, Double, Double> function);
+    public Tensor applyBinary(Tensor right, BiFunction<Double, Double, Double> function) {
+        return TensorMath.applyBinary(this, right, function);
+    }
 }
