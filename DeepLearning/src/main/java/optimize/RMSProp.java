@@ -3,7 +3,7 @@ package optimize;
 import java.util.HashMap;
 import java.util.Map;
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 /**
  * Implements the RMS Prop algorithm
@@ -12,8 +12,8 @@ import tensor.TensorV0;
  */
 public class RMSProp implements Optimizer {
     private final double learningRate;
-    private final TensorV0 beta;
-    private final TensorV0 epsilon = TensorV0.constant(1.0e-8);
+    private final Tensor2D beta;
+    private final Tensor2D epsilon = Tensor2D.constant(1.0e-8);
     private final Map<String, Tensor> variances;
     
     public RMSProp(double learningRate, double beta) {
@@ -21,27 +21,26 @@ public class RMSProp implements Optimizer {
         if (beta < 0 || beta > 1) {
             throw new IllegalArgumentException("Momentum beta parameter must be in [0,1].");
         }
-        this.beta = TensorV0.constant(beta);
+        this.beta = Tensor2D.constant(beta);
         variances = new HashMap<>();
     }
     
     @Override
     public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier) {
         var parameterUpdates = new HashMap<String, Tensor>();
-        var factor = TensorV0.constant(-1.0 * learningRate);
+        var factor = Tensor2D.constant(-1.0 * learningRate);
         
         for (var key : dParameters.keySet()) {
             var lookup = key + identifier;
-            var variance = variances.getOrDefault(lookup, TensorV0.constant(0.0));
+            var variance = variances.getOrDefault(lookup, Tensor2D.constant(0.0));
             var dParameter = dParameters.get(key);
             
             // Compute updated variance
-            variance = beta.multiply(variance).add(
-                    TensorV0.one().subtract(beta)
+            variance = beta.multiply(variance).add(Tensor2D.one().subtract(beta)
                             .multiply(dParameter.multiply(dParameter)));
             
             variances.put(lookup, variance);
-            var sd = variance.power(TensorV0.constant(0.5));
+            var sd = variance.power(Tensor2D.constant(0.5));
             
             // Divide by sd + epsilon to avoid division by zero.
             parameterUpdates.put(key, dParameter

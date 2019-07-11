@@ -3,7 +3,7 @@ package optimize;
 import java.util.HashMap;
 import java.util.Map;
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 /**
  * Implements ADAM (adaptive moment) optimization.
@@ -18,9 +18,9 @@ import tensor.TensorV0;
  */
 public class Adam implements Optimizer {
     private final double learningRate;
-    private final TensorV0 beta1;
-    private final TensorV0 beta2;
-    private final TensorV0 epsilon = TensorV0.constant(1.0e-8);
+    private final Tensor2D beta1;
+    private final Tensor2D beta2;
+    private final Tensor2D epsilon = Tensor2D.constant(1.0e-8);
     private final Map<String, Tensor> momentums;
     private final Map<String, Tensor> variances;
     
@@ -38,8 +38,8 @@ public class Adam implements Optimizer {
         if (beta1 < 0 || beta1 > 1 || beta2 < 0 || beta2 > 1) {
             throw new IllegalArgumentException("Momentum beta parameters must be in [0,1].");
         }
-        this.beta1 = TensorV0.constant(beta1);
-        this.beta2 = TensorV0.constant(beta2);
+        this.beta1 = Tensor2D.constant(beta1);
+        this.beta2 = Tensor2D.constant(beta2);
         momentums = new HashMap<>();
         variances = new HashMap<>();
     }
@@ -47,29 +47,27 @@ public class Adam implements Optimizer {
     @Override
     public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier) {
         var parameterUpdates = new HashMap<String, Tensor>();
-        var factor = TensorV0.constant(-1.0 * learningRate);
+        var factor = Tensor2D.constant(-1.0 * learningRate);
         
         for (var key : dParameters.keySet()) {
             var lookup = key + identifier;
             var dParameter = dParameters.get(key);
             
             // Compute updated momentum
-            var momentum = momentums.getOrDefault(lookup, TensorV0.constant(0.0));
-            momentum = beta1.multiply(momentum).add(
-                    TensorV0.one().subtract(beta1)
+            var momentum = momentums.getOrDefault(lookup, Tensor2D.constant(0.0));
+            momentum = beta1.multiply(momentum).add(Tensor2D.one().subtract(beta1)
                             .multiply(dParameter));
             
             momentums.put(lookup, momentum);
             
             // Compute updated variance
-            var variance = variances.getOrDefault(lookup, TensorV0.constant(0.0));
-            variance = beta2.multiply(variance).add(
-                    TensorV0.one().subtract(beta2)
+            var variance = variances.getOrDefault(lookup, Tensor2D.constant(0.0));
+            variance = beta2.multiply(variance).add(Tensor2D.one().subtract(beta2)
                             .multiply(dParameter.multiply(dParameter)));
             
             variances.put(lookup, variance);
             
-            var sd = variance.power(TensorV0.constant(0.5));
+            var sd = variance.power(Tensor2D.constant(0.5));
             
             // Divide by sd + epsilon to avoid division by zero.
             parameterUpdates.put(key, momentum

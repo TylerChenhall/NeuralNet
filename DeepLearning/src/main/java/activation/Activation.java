@@ -1,7 +1,7 @@
 package activation;
 
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 public class Activation {
     private final ActivationType type;
@@ -19,11 +19,11 @@ public class Activation {
             case Sigmoid:
                 return input.sigmoid();
             case Softmax:
-                if (!(input instanceof TensorV0)) {
+                if (!(input instanceof Tensor2D)) {
                     throw new IllegalArgumentException("Softmax only supports TensorV0");
                 }
                 var exponentials = input.exponentiate();
-                TensorV0 sums = ((TensorV0) exponentials).columnSum();
+                Tensor2D sums = ((Tensor2D) exponentials).columnSum();
                 return exponentials.divideBy(sums);
             case Tanh:
                 return input.tanh();
@@ -38,13 +38,13 @@ public class Activation {
                 return dInput;
             case ReLU:
                 // Compute dA * (cacheZ >= 0)
-                var mask = cacheZ.atLeast(TensorV0.constant(0.0));
+                var mask = cacheZ.atLeast(Tensor2D.constant(0.0));
                 return dInput.multiply(mask);
             case Sigmoid:
                 // Compute dA * [sigma * (1 - sigma)] with element-wise *
                 var temp = cacheZ.sigmoid();
                 var sigmoidDerivative = temp
-                        .multiply(TensorV0.one().subtract(temp));
+                        .multiply(Tensor2D.one().subtract(temp));
                 return dInput.multiply(sigmoidDerivative);
             case Softmax:
                 throw new UnsupportedOperationException("Type: " + type + " is not yet supported.");

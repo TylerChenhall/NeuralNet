@@ -1,7 +1,7 @@
 package cost;
 
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 /**
  * @author tyler
@@ -13,9 +13,9 @@ public class LeastSquaresCost implements Cost {
         var m = prediction.mDim();
         
         var costTerms = prediction.subtract(groundTruth)
-                .power(TensorV0.constant(2.0));
+                .power(Tensor2D.constant(2.0));
         var totalCost = costTerms.allSum();
-        var averageCost = totalCost.multiply(TensorV0.constant(0.5 / m));
+        var averageCost = totalCost.multiply(Tensor2D.constant(0.5 / m));
         return averageCost.value(0, 0);
     }
 

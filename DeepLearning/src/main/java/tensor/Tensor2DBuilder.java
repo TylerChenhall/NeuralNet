@@ -7,30 +7,30 @@ import java.util.Random;
  * 
  * @author tyler
  */
-public class TensorV0Builder {
+public class Tensor2DBuilder {
     public static final long DEFAULT_SEED = 2019L;
     
-    public static TensorV0 heInitialization(int nrows, int ncols, long seed) {
+    public static Tensor2D heInitialization(int nrows, int ncols, long seed) {
         double standardDeviation = Math.sqrt(2.0 / ncols);
         
         return sdInitialization(nrows, ncols, standardDeviation, seed);
     }
     
-    public static TensorV0 heInitialization(int nrows, int ncols) {
+    public static Tensor2D heInitialization(int nrows, int ncols) {
         return heInitialization(nrows, ncols, DEFAULT_SEED);
     }
     
-    public static TensorV0 xavierInitialization(int nrows, int ncols, long seed) {
+    public static Tensor2D xavierInitialization(int nrows, int ncols, long seed) {
         double standardDeviation = Math.sqrt(1.0 / ncols);
         
         return sdInitialization(nrows, ncols, standardDeviation, seed);
     }
     
-    public static TensorV0 xavierInitialization(int nrows, int ncols) {
+    public static Tensor2D xavierInitialization(int nrows, int ncols) {
         return xavierInitialization(nrows, ncols, DEFAULT_SEED);
     }
     
-    public static TensorV0 sdInitialization(int nrows, int ncols, double standardDeviation, long seed) {
+    public static Tensor2D sdInitialization(int nrows, int ncols, double standardDeviation, long seed) {
         double[][] data = new double[nrows][ncols];
         Random r = new Random(seed);
         for (int i = 0; i < nrows; i++) {
@@ -39,6 +39,6 @@ public class TensorV0Builder {
             }
         }
         
-        return new TensorV0(data);
+        return new Tensor2D(data);
     }
 }

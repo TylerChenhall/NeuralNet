@@ -1,7 +1,7 @@
 package cost;
 
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 /**
  * @author tyler

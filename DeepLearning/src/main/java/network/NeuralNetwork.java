@@ -8,7 +8,7 @@ import layer.ForwardPropResult;
 import layer.FullyConnected;
 import optimize.Optimizer;
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 public class NeuralNetwork {
 
@@ -77,7 +77,7 @@ public class NeuralNetwork {
         return activation;
     }
 
-    public double evaluate(TensorV0 dataFeatures, TensorV0 dataLabels) {
+    public double evaluate(Tensor2D dataFeatures, Tensor2D dataLabels) {
         var predictions = predict(dataFeatures);
         return costFunction.computeCost(predictions, dataLabels);
     }

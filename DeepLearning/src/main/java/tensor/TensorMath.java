@@ -57,7 +57,7 @@ public class TensorMath {
                             right.value2(i,j));
                 }
             }
-            return new TensorV0(data);
+            return new Tensor2D(data);
         }
         
         // Everything else is not a valid case right now.

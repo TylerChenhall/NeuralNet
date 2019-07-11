@@ -9,7 +9,7 @@ import optimize.Adam;
 import optimize.GradientDescent;
 import optimize.Momentum;
 import optimize.RMSProp;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 public class FCTest {
     public static void main(String[] args) {
@@ -19,16 +19,16 @@ public class FCTest {
         // boundary 1.0 * x0 + 2.0 * x1 - 3.0 >= 0.0
         double[][] weights = {{1.0, 2.0}};
         var layer = new FullyConnected(new Activation(ActivationType.Sigmoid),
-                new TensorV0(weights), TensorV0.constant(-3.0));
+                new Tensor2D(weights), Tensor2D.constant(-3.0));
         
         // Create a quick dataset
         double[][] inputs = {
             {-5.0, -5.0, -5.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0},
             {-5.0, 0.0, 5.0, -5.0, 0.0, 5.0, -5.0, 0.0, 5.0}};
-        var inputTensor = new TensorV0(inputs);
+        var inputTensor = new Tensor2D(inputs);
         
         double[][] classes = {{0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0}};
-        var groundTruths = new TensorV0(classes);
+        var groundTruths = new Tensor2D(classes);
         
         // Propagate the layer on the dataset
         var results = layer.forwardPropagate(inputTensor);

@@ -4,8 +4,8 @@ import activation.Activation;
 import java.util.HashMap;
 import java.util.Map;
 import tensor.Tensor;
-import tensor.TensorV0;
-import tensor.TensorV0Builder;
+import tensor.Tensor2D;
+import tensor.Tensor2DBuilder;
 
 /**
  * Basic implementation of a Fully Connected Neural Network layer.
@@ -30,20 +30,20 @@ public class FullyConnected {
     
     // Weights for all nodes in this layer of the network. Each row represents
     // the weights for a single node.
-    private TensorV0 weights;
-    private TensorV0 bias;
+    private Tensor2D weights;
+    private Tensor2D bias;
     
     public FullyConnected(Activation activation, int nNodes, int inputDim) {
         this.activation = activation;
         
         // TODO: provide option to skip the bias here or in training
         // TODO: option to customize intialization
-        weights = TensorV0Builder.heInitialization(nNodes, inputDim);
-        bias = new TensorV0(nNodes, 1);
+        weights = Tensor2DBuilder.heInitialization(nNodes, inputDim);
+        bias = new Tensor2D(nNodes, 1);
         
     }
     
-    public FullyConnected(Activation activation, TensorV0 weights, TensorV0 bias) {
+    public FullyConnected(Activation activation, Tensor2D weights, Tensor2D bias) {
         this.activation = activation;
         this.weights = weights;
         this.bias = bias;
@@ -59,10 +59,10 @@ public class FullyConnected {
      * @return Returns a map containing the post and pre-activation outputs
      */
     public ForwardPropResult forwardPropagate(Tensor x) {
-        if (!(x instanceof TensorV0)) {
+        if (!(x instanceof Tensor2D)) {
             throw new IllegalArgumentException("Input for fully connected layers must be 2D Tensors.");
         }
-        var aOld = (TensorV0) x;
+        var aOld = (Tensor2D) x;
         var z = weights.matrixMultiply(aOld).add(bias);
         var a = activation.apply(z);
         
@@ -86,14 +86,14 @@ public class FullyConnected {
      */
     public BackPropResult backwardPropagate(Tensor dA, ForwardPropResult cache) {
         var z = cache.cache.get(PRE_ACTIVATION);
-        var aOld = (TensorV0) cache.cache.get(OLD_ACTIVATION);
-        var factor = TensorV0.constant(1.0 / aOld.ncols);
+        var aOld = (Tensor2D) cache.cache.get(OLD_ACTIVATION);
+        var factor = Tensor2D.constant(1.0 / aOld.ncols);
         
-        var dZ = (TensorV0) activation.derivateApply(dA, z);
+        var dZ = (Tensor2D) activation.derivateApply(dA, z);
         var dW = dZ.matrixMultiply(aOld.transpose()).multiply(factor);
         var db = dZ.rowSum().multiply(factor);
         
-        TensorV0 daPrev = weights.transpose().matrixMultiply(dZ);
+        Tensor2D daPrev = weights.transpose().matrixMultiply(dZ);
         HashMap<String, Tensor> results = new HashMap<>();
         results.put(D_WEIGHTS, dW);
         results.put(D_BIAS, db);
@@ -102,8 +102,8 @@ public class FullyConnected {
     }
     
     public void updateParameters(Map<String, Tensor> deltaParameters) {
-        weights = (TensorV0) weights.add(deltaParameters.get(D_WEIGHTS));
-        bias = (TensorV0) bias.add(deltaParameters.get(D_BIAS));
+        weights = (Tensor2D) weights.add(deltaParameters.get(D_WEIGHTS));
+        bias = (Tensor2D) bias.add(deltaParameters.get(D_BIAS));
     }
     
     public String toString() {

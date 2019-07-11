@@ -16,13 +16,13 @@ import java.util.function.Function;
  *   
  * @author tyler
  */
-public class TensorV0 extends Tensor {
+public class Tensor2D extends Tensor {
     // TODO: probably remove nrows, ncols.
     public final int nrows;
     public final int ncols;
     private double[][] data;
     
-    public TensorV0(int nr, int nc) {
+    public Tensor2D(int nr, int nc) {
         super(List.of(nr, nc));
         nrows = nr;
         ncols = nc;
@@ -34,7 +34,7 @@ public class TensorV0 extends Tensor {
      * 
      * @param inputData 
      */
-    public TensorV0(double[][] inputData) {
+    public Tensor2D(double[][] inputData) {
         super(List.of(inputData.length, inputData[0].length));
         nrows = inputData.length;
         ncols = inputData[0].length;
@@ -65,12 +65,12 @@ public class TensorV0 extends Tensor {
         return data[r % nrows][c % ncols];
     }
     
-    public TensorV0 matrixMultiply(TensorV0 t) {
+    public Tensor2D matrixMultiply(Tensor2D t) {
         if (this.ncols != t.nrows) {
             throw new IllegalArgumentException("Matrix Multiplication is not defined for matrices of shape " +
                     shape() + ", and " + t.shape() + ".");
         }
-        TensorV0 result = new TensorV0(nrows, t.ncols);
+        Tensor2D result = new Tensor2D(nrows, t.ncols);
         for (int i = 0; i < nrows; i++) {
             for (int j = 0; j < t.ncols; j++) {
                 for (int k = 0; k < ncols; k++) {
@@ -87,8 +87,8 @@ public class TensorV0 extends Tensor {
      * 
      * @return A 1 x ncols TensorV0 of column sums
      */
-    public TensorV0 columnSum() {
-        TensorV0 result = new TensorV0(1, ncols);
+    public Tensor2D columnSum() {
+        Tensor2D result = new Tensor2D(1, ncols);
         for (int i = 0; i < nrows; i++) {
             for (int j = 0; j < ncols; j++) {
                 result.data[0][j] += this.data[i][j];
@@ -103,8 +103,8 @@ public class TensorV0 extends Tensor {
      * 
      * @return A nrows x 1 TensorV0 of row sums
      */
-    public TensorV0 rowSum() {
-        TensorV0 result = new TensorV0(nrows, 1);
+    public Tensor2D rowSum() {
+        Tensor2D result = new Tensor2D(nrows, 1);
         for (int i = 0; i < nrows; i++) {
             for (int j = 0; j < ncols; j++) {
                 result.data[i][0] += this.data[i][j];
@@ -114,8 +114,8 @@ public class TensorV0 extends Tensor {
         return result;
     }
 
-    public TensorV0 transpose() {
-        TensorV0 result = new TensorV0(ncols, nrows);
+    public Tensor2D transpose() {
+        Tensor2D result = new Tensor2D(ncols, nrows);
         for (int i = 0; i < nrows; i++) {
             for (int j = 0; j < ncols; j++) {
                 result.data[j][i] = this.data[i][j];
@@ -142,18 +142,18 @@ public class TensorV0 extends Tensor {
         return ncols;
     }
     
-    public static TensorV0 one() {
+    public static Tensor2D one() {
         return constant(1.);
     }
     
-    public static TensorV0 constant(double value) {
+    public static Tensor2D constant(double value) {
         double[][] data = {{value}};
-        return new TensorV0(data);
+        return new Tensor2D(data);
     }
     
     @Override
-    public TensorV0 applyUnary(Function<Double,Double> function) {
-        TensorV0 result = new TensorV0(nrows, ncols);
+    public Tensor2D applyUnary(Function<Double,Double> function) {
+        Tensor2D result = new Tensor2D(nrows, ncols);
         
         for (int i = 0; i < nrows; i++) {
             for (int j = 0; j < ncols; j++) {

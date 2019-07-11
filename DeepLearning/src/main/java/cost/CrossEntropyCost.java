@@ -1,7 +1,7 @@
 package cost;
 
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 /**
  * Computes cross entropy cost and cost derivative
@@ -20,13 +20,13 @@ public class CrossEntropyCost implements Cost {
     public double computeCost(Tensor prediction, Tensor groundTruth) {
         var m = prediction.mDim();
         
-        var oneMinusPrediction = TensorV0.one().subtract(prediction);
-        var oneMinusTruth = TensorV0.one().subtract(groundTruth);
+        var oneMinusPrediction = Tensor2D.one().subtract(prediction);
+        var oneMinusTruth = Tensor2D.one().subtract(groundTruth);
         
         var costTerms = groundTruth.multiply(prediction.log())
                 .add(oneMinusTruth.multiply(oneMinusPrediction.log()));
         var totalCost = costTerms.allSum();
-        var averageCost = totalCost.multiply(TensorV0.constant(-1.0 / m));
+        var averageCost = totalCost.multiply(Tensor2D.constant(-1.0 / m));
         return averageCost.value(0, 0);
     }
     
@@ -41,8 +41,8 @@ public class CrossEntropyCost implements Cost {
      */
     @Override
     public Tensor computeCostDerivative(Tensor prediction, Tensor groundTruth) {
-        var oneMinusPrediction = TensorV0.one().subtract(prediction);
-        var oneMinusTruth = TensorV0.one().subtract(groundTruth);
+        var oneMinusPrediction = Tensor2D.one().subtract(prediction);
+        var oneMinusTruth = Tensor2D.one().subtract(groundTruth);
         
         var derivatives = oneMinusTruth.divideBy(oneMinusPrediction)
                 .subtract(groundTruth.divideBy(prediction));

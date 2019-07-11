@@ -3,7 +3,7 @@ package optimize;
 import java.util.HashMap;
 import java.util.Map;
 import tensor.Tensor;
-import tensor.TensorV0;
+import tensor.Tensor2D;
 
 /**
  * @author tyler
@@ -25,7 +25,7 @@ public class GradientDescent implements Optimizer {
     @Override
     public Map<String, Tensor> computeParameterUpdates(Map<String, Tensor> dParameters, int identifier) {
         var parameterUpdates = new HashMap<String, Tensor>();
-        var factor = TensorV0.constant(-1.0 * learningRate);
+        var factor = Tensor2D.constant(-1.0 * learningRate);
         
         for (var key : dParameters.keySet()) {
             parameterUpdates.put(key, dParameters.get(key).multiply(factor));
