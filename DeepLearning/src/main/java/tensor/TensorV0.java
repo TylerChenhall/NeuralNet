@@ -1,6 +1,8 @@
 package tensor;
 
 import java.text.DecimalFormat;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /** 
  * A basic 2D tensor implementation.
@@ -55,59 +57,19 @@ public class TensorV0 {
     }
     
     public TensorV0 add(TensorV0 t) {
-        TensorV0[] tensors = broadcastify(this, t);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = tensors[0].data[i][j] + tensors[1].data[i][j];
-            }
-        }
-        
-        return result;
+        return applyBinary(this, t, (d1, d2) -> d1 + d2);
     }
 
     public TensorV0 subtract(TensorV0 t) {
-        TensorV0[] tensors = broadcastify(this, t);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = tensors[0].data[i][j] - tensors[1].data[i][j];
-            }
-        }
-        
-        return result;
+        return applyBinary(this, t, (d1, d2) -> d1 - d2);
     }
 
     public TensorV0 multiply(TensorV0 t) {
-        TensorV0[] tensors = broadcastify(this, t);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = tensors[0].data[i][j] * tensors[1].data[i][j];
-            }
-        }
-        
-        return result;
+        return applyBinary(this, t, (d1, d2) -> d1 * d2);
     }
 
     public TensorV0 divideBy(TensorV0 t) {
-        TensorV0[] tensors = broadcastify(this, t);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = tensors[0].data[i][j] / tensors[1].data[i][j];
-            }
-        }
-        
-        return result;
+        return applyBinary(this, t, (d1, d2) -> d1 / d2);
     }
     
     /**
@@ -116,31 +78,11 @@ public class TensorV0 {
      * @return  The result is an indicator TensorV0, with 1.0 indicating true.
      */
     public TensorV0 atLeast(TensorV0 t) {
-        TensorV0[] tensors = broadcastify(this, t);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = tensors[0].data[i][j] >= tensors[1].data[i][j] ? 1.0 : 0.0;
-            }
-        }
-        
-        return result;
+        return applyBinary(this, t, (d1, d2) -> d1 >= d2 ? 1.0 : 0.0);
     }
 
     public TensorV0 power(TensorV0 t) {
-        TensorV0[] tensors = broadcastify(this, t);
-        
-        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
-        
-        for (int i = 0; i < result.nrows; i++) {
-            for (int j = 0; j < result.ncols; j++) {
-                result.data[i][j] = Math.pow(tensors[0].data[i][j], tensors[1].data[i][j]);
-            }
-        }
-        
-        return result;
+        return applyBinary(this, t, Math::pow);
     }
     
     public TensorV0 matrixMultiply(TensorV0 t) {
@@ -177,47 +119,19 @@ public class TensorV0 {
     }
 
     public TensorV0 exponentiate() {
-        TensorV0 result = new TensorV0(nrows, ncols);
-        for (int i = 0; i < nrows; i++) {
-            for (int j = 0; j < ncols; j++) {
-                result.data[i][j] = Math.exp(this.data[i][j]);
-            }
-        }
-        
-        return result;
+        return applyUnary(this, Math::exp);
     }
     
     public TensorV0 log() {
-        TensorV0 result = new TensorV0(nrows, ncols);
-        for (int i = 0; i < nrows; i++) {
-            for (int j = 0; j < ncols; j++) {
-                result.data[i][j] = Math.log(this.data[i][j]);
-            }
-        }
-        
-        return result;
+        return applyUnary(this, Math::log);
     }
     
     public TensorV0 negate() {
-        TensorV0 result = new TensorV0(nrows, ncols);
-        for (int i = 0; i < nrows; i++) {
-            for (int j = 0; j < ncols; j++) {
-                result.data[i][j] = -1.0 * this.data[i][j];
-            }
-        }
-        
-        return result;
+        return applyUnary(this, d -> -d);
     }
     
     public TensorV0 relu() {
-        TensorV0 result = new TensorV0(nrows, ncols);
-        for (int i = 0; i < nrows; i++) {
-            for (int j = 0; j < ncols; j++) {
-                result.data[i][j] = Math.max(0., this.data[i][j]);
-            }
-        }
-        
-        return result;
+        return applyUnary(this, d -> Math.max(0, d));
     }
     
     /**
@@ -237,20 +151,11 @@ public class TensorV0 {
     }
     
     public TensorV0 sigmoid() {
-        return TensorV0.one().divideBy(
-                TensorV0.one().add(this.negate().exponentiate())
-        );
+        return applyUnary(this, d -> 1.0 / (1.0 + Math.exp(-d)));
     }
     
     public TensorV0 tanh() {
-        TensorV0 result = new TensorV0(nrows, ncols);
-        for (int i = 0; i < nrows; i++) {
-            for (int j = 0; j < ncols; j++) {
-                result.data[i][j] = Math.tanh(this.data[i][j]);
-            }
-        }
-        
-        return result;
+        return applyUnary(this, Math::tanh);
     }
 
     public TensorV0 transpose() {
@@ -275,6 +180,32 @@ public class TensorV0 {
     public static TensorV0 constant(double value) {
         double[][] data = {{value}};
         return new TensorV0(data);
+    }
+    
+    private static TensorV0 applyUnary(TensorV0 input, Function<Double,Double> function) {
+        TensorV0 result = new TensorV0(input.nrows, input.ncols);
+        
+        for (int i = 0; i < result.nrows; i++) {
+            for (int j = 0; j < result.ncols; j++) {
+                result.data[i][j] = function.apply(input.data[i][j]);
+            }
+        }
+        
+        return result;
+    }
+    
+    private static TensorV0 applyBinary(TensorV0 left, TensorV0 right, BiFunction<Double, Double, Double> function) {
+        TensorV0[] tensors = broadcastify(left, right);
+        
+        TensorV0 result = new TensorV0(tensors[0].nrows, tensors[0].ncols);
+        
+        for (int i = 0; i < result.nrows; i++) {
+            for (int j = 0; j < result.ncols; j++) {
+                result.data[i][j] = function.apply(tensors[0].data[i][j],tensors[1].data[i][j]);
+            }
+        }
+        
+        return result;
     }
     
     /** 
