@@ -84,7 +84,9 @@ public abstract class Tensor {
      * breakages while generalizing to abstract Tensor
      * @return 
      */
-    public abstract int mDim();
+    public int mDim() {
+        return dimensions.get(0);
+    }
     
     /**
      * Return the value in the specified position of the Tensor.

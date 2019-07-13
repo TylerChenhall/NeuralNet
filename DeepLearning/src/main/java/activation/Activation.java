@@ -23,7 +23,7 @@ public class Activation {
                     throw new IllegalArgumentException("Softmax only supports TensorV0");
                 }
                 var exponentials = input.exponentiate();
-                Tensor2D sums = ((Tensor2D) exponentials).columnSum();
+                Tensor2D sums = ((Tensor2D) exponentials).rowSum();
                 return exponentials.divideBy(sums);
             case Tanh:
                 return input.tanh();

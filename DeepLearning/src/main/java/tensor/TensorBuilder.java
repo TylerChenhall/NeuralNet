@@ -22,7 +22,7 @@ public class TensorBuilder {
     }
     
     public static Tensor2D heInitialization(int nrows, int ncols, long seed) {
-        double standardDeviation = Math.sqrt(2.0 / ncols);
+        double standardDeviation = Math.sqrt(2.0 / nrows);
         
         return sdInitialization(nrows, ncols, standardDeviation, seed);
     }
@@ -32,7 +32,7 @@ public class TensorBuilder {
     }
     
     public static Tensor2D xavierInitialization(int nrows, int ncols, long seed) {
-        double standardDeviation = Math.sqrt(1.0 / ncols);
+        double standardDeviation = Math.sqrt(1.0 / nrows);
         
         return sdInitialization(nrows, ncols, standardDeviation, seed);
     }

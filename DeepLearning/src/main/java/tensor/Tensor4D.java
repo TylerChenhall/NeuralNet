@@ -71,11 +71,6 @@ public class Tensor4D extends Tensor {
     }
 
     @Override
-    public int mDim() {
-        return shape().get(0);
-    }
-
-    @Override
     public double value(int... position) {
         if (position.length != 4) {
             throw new IllegalArgumentException("Invalid position for 4D Tensor");

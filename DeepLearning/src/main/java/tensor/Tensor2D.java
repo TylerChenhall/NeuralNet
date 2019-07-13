@@ -146,19 +146,6 @@ public class Tensor2D extends Tensor {
         return this.rowSum().columnSum();
     }
 
-    /**
-     * mDim implementation.
-     *
-     * TODO: I think m should really be the first dimension (nrows). However,
-     * this would require me to make some changes first.
-     *
-     * @return
-     */
-    @Override
-    public int mDim() {
-        return ncols;
-    }
-
     public static Tensor2D one() {
         return constant(1.);
     }

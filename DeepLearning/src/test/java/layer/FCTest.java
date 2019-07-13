@@ -17,22 +17,30 @@ public class FCTest {
         
         // Create a single unit sigmoid layer. It models the classification
         // boundary 1.0 * x0 + 2.0 * x1 - 3.0 >= 0.0
-        double[][] weights = {{1.0, 2.0}};
+        double[][] weights = {{1.0}, {2.0}};
         var layer = new FullyConnected(new Activation(ActivationType.Sigmoid),
                 new Tensor2D(weights), Tensor2D.constant(-3.0));
         
         // Create a quick dataset
         double[][] inputs = {
-            {-5.0, -5.0, -5.0, 0.0, 0.0, 0.0, 5.0, 5.0, 5.0},
-            {-5.0, 0.0, 5.0, -5.0, 0.0, 5.0, -5.0, 0.0, 5.0}};
+            {-5.0, -5.0},
+            {-5.0, 0.0},
+            {-5.0, 5.0},
+            {0.0, -5.0},
+            {0.0, 0.0},
+            {0.0, 5.0},
+            {5.0, -5.0},
+            {5.0, 0.0},
+            {5.0, 5.0}};
         var inputTensor = new Tensor2D(inputs);
         
-        double[][] classes = {{0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0}};
+        double[][] classes = {{0.0}, {0.0}, {1.0}, {0.0}, {0.0}, {1.0}, {0.0}, 
+            {1.0}, {1.0}};
         var groundTruths = new Tensor2D(classes);
         
         // Propagate the layer on the dataset
         var results = layer.forwardPropagate(inputTensor, false);
-        var predictions = results.a;
+        var predictions = (Tensor2D) results.a;
         
         // Evaluate results
         // Compute cost
@@ -42,8 +50,8 @@ public class FCTest {
         
         System.out.println("Raw layer results");
         System.out.println("-----------------");
-        System.out.println(groundTruths);
-        System.out.println(predictions);
+        System.out.println(groundTruths.transpose());
+        System.out.println(predictions.transpose());
         System.out.println(cost);
         //System.out.println(costDerivatives);
         
@@ -55,8 +63,8 @@ public class FCTest {
         
         System.out.println("Network results");
         System.out.println("-----------------");
-        System.out.println(groundTruths);
-        System.out.println(network.predict(inputTensor));
+        System.out.println(groundTruths.transpose());
+        System.out.println(((Tensor2D) network.predict(inputTensor)).transpose());
         System.out.println(network.evaluate(inputTensor, groundTruths));
         
         // Training a network
@@ -84,8 +92,8 @@ public class FCTest {
         
         System.out.println(epochCosts.get(0));
         System.out.println(epochCosts.get(numEpochs-1));
-        System.out.println(groundTruths);
-        System.out.println(trainableNetwork.predict(inputTensor));
+        System.out.println(groundTruths.transpose());
+        System.out.println(((Tensor2D) trainableNetwork.predict(inputTensor)).transpose());
         System.out.println(trainableNetwork.evaluate(inputTensor, groundTruths));
         
         System.out.println(trainableNetwork);

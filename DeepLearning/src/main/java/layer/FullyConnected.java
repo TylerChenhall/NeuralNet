@@ -28,8 +28,8 @@ public class FullyConnected implements Layer {
     
     private final Activation activation;
     
-    // Weights for all nodes in this layer of the network. Each row represents
-    // the weights for a single node.
+    // Weights for all nodes in this layer of the network. Each column
+    // represents the weights for a single node.
     private Tensor2D weights;
     private Tensor2D bias;
     
@@ -38,8 +38,8 @@ public class FullyConnected implements Layer {
         
         // TODO: provide option to skip the bias here or in training
         // TODO: option to customize intialization
-        weights = TensorBuilder.heInitialization(nNodes, inputDim);
-        bias = new Tensor2D(nNodes, 1);
+        weights = TensorBuilder.heInitialization(inputDim, nNodes);
+        bias = new Tensor2D(1, nNodes);
         
     }
     
@@ -52,19 +52,20 @@ public class FullyConnected implements Layer {
     /**
      * Computes the activations from a fully connected layer based on the input.
      * 
-     * We assume the results for each data point are organized into columns of
+     * We assume the results for each data point are organized into rows of
      * x. This is also true of the output.
      * 
      * @param x Vectorized inputs 
      * @param training Whether the network is currently being trained
      * @return Returns a map containing the post and pre-activation outputs
      */
+    @Override
     public ForwardPropResult forwardPropagate(Tensor x, boolean training) {
         if (!(x instanceof Tensor2D)) {
             throw new IllegalArgumentException("Input for fully connected layers must be 2D Tensors.");
         }
         var aOld = (Tensor2D) x;
-        var z = weights.matrixMultiply(aOld).add(bias);
+        var z = aOld.matrixMultiply(weights).add(bias);
         var a = activation.apply(z);
         
         var cache = new HashMap<String, Tensor>();
@@ -78,23 +79,24 @@ public class FullyConnected implements Layer {
      * Computes derivatives needed for backward propagation in previous layers.
      * 
      * Formulas:
-     * dW = 1/m * dZ*A_prev^T
-     * db = 1/m * dZ.rowSum
+     * dW = 1/m * A_prev^T*dZ
+     * db = 1/m * dZ.columnSum
      * 
      * @param dA
      * @param cache Map containing the activation values, as output by forwardPropagate
      * @return 
      */
+    @Override
     public BackPropResult backwardPropagate(Tensor dA, ForwardPropResult cache) {
         var z = cache.cache.get(PRE_ACTIVATION);
         var aOld = (Tensor2D) cache.cache.get(OLD_ACTIVATION);
-        var factor = Tensor2D.constant(1.0 / aOld.ncols);
+        var factor = Tensor2D.constant(1.0 / aOld.mDim());
         
         var dZ = (Tensor2D) activation.derivateApply(dA, z);
-        var dW = dZ.matrixMultiply(aOld.transpose()).multiply(factor);
-        var db = dZ.rowSum().multiply(factor);
+        var dW = aOld.transpose().matrixMultiply(dZ).multiply(factor);
+        var db = dZ.columnSum().multiply(factor);
         
-        var daPrev = weights.transpose().matrixMultiply(dZ);
+        var daPrev = dZ.matrixMultiply(weights.transpose());
         HashMap<String, Tensor> results = new HashMap<>();
         results.put(D_WEIGHTS, dW);
         results.put(D_BIAS, db);
@@ -102,22 +104,26 @@ public class FullyConnected implements Layer {
         return new BackPropResult(daPrev, results);
     }
     
+    @Override
     public void updateParameters(Map<String, Tensor> deltaParameters) {
         weights = (Tensor2D) weights.add(deltaParameters.get(D_WEIGHTS));
         bias = (Tensor2D) bias.add(deltaParameters.get(D_BIAS));
     }
     
+    @Override
     public String toString() {
         var sb = new StringBuilder();
         sb.append("Fully Connected Layer");
         sb.append(System.lineSeparator());
         sb.append("Weights:");
         sb.append(System.lineSeparator());
-        sb.append(weights);
+        // To make toString more readable, we transpose the weights and bias
+        // Tensors so each row gives the parameters for a single unit.
+        sb.append(weights.transpose());
         sb.append(System.lineSeparator());
         sb.append("Bias:");
         sb.append(System.lineSeparator());
-        sb.append(bias);
+        sb.append(bias.transpose());
         
         return sb.toString();
     }
