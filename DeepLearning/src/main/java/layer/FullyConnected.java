@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import tensor.Tensor;
 import tensor.Tensor2D;
-import tensor.Tensor2DBuilder;
+import tensor.TensorBuilder;
 
 /**
  * Basic implementation of a Fully Connected Neural Network layer.
@@ -19,7 +19,7 @@ import tensor.Tensor2DBuilder;
  *  
  * @author tyler
  */
-public class FullyConnected {
+public class FullyConnected implements Layer {
     public static final String OLD_ACTIVATION = "a_old";
     public static final String PRE_ACTIVATION = "z";
     public static final String POST_ACTIVATION = "a";
@@ -38,7 +38,7 @@ public class FullyConnected {
         
         // TODO: provide option to skip the bias here or in training
         // TODO: option to customize intialization
-        weights = Tensor2DBuilder.heInitialization(nNodes, inputDim);
+        weights = TensorBuilder.heInitialization(nNodes, inputDim);
         bias = new Tensor2D(nNodes, 1);
         
     }
@@ -56,9 +56,10 @@ public class FullyConnected {
      * x. This is also true of the output.
      * 
      * @param x Vectorized inputs 
+     * @param training Whether the network is currently being trained
      * @return Returns a map containing the post and pre-activation outputs
      */
-    public ForwardPropResult forwardPropagate(Tensor x) {
+    public ForwardPropResult forwardPropagate(Tensor x, boolean training) {
         if (!(x instanceof Tensor2D)) {
             throw new IllegalArgumentException("Input for fully connected layers must be 2D Tensors.");
         }
@@ -66,7 +67,7 @@ public class FullyConnected {
         var z = weights.matrixMultiply(aOld).add(bias);
         var a = activation.apply(z);
         
-        HashMap<String, Tensor> cache = new HashMap<>();
+        var cache = new HashMap<String, Tensor>();
         cache.put(OLD_ACTIVATION, aOld);
         cache.put(PRE_ACTIVATION, z);
         
@@ -93,7 +94,7 @@ public class FullyConnected {
         var dW = dZ.matrixMultiply(aOld.transpose()).multiply(factor);
         var db = dZ.rowSum().multiply(factor);
         
-        Tensor2D daPrev = weights.transpose().matrixMultiply(dZ);
+        var daPrev = weights.transpose().matrixMultiply(dZ);
         HashMap<String, Tensor> results = new HashMap<>();
         results.put(D_WEIGHTS, dW);
         results.put(D_BIAS, db);

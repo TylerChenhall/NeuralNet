@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import layer.BackPropResult;
 import layer.ForwardPropResult;
-import layer.FullyConnected;
+import layer.Layer;
 import optimize.Optimizer;
 import tensor.Tensor;
 import tensor.Tensor2D;
@@ -13,10 +13,10 @@ import tensor.Tensor2D;
 public class NeuralNetwork {
 
     private final Cost costFunction;
-    private final List<FullyConnected> layers;
+    private final List<Layer> layers;
     private final Optimizer optimizer;
 
-    public NeuralNetwork(List<FullyConnected> layers, Cost costFunction, Optimizer optimizer) {
+    public NeuralNetwork(List<Layer> layers, Cost costFunction, Optimizer optimizer) {
         this.layers = layers;
         this.costFunction = costFunction;
         this.optimizer = optimizer;
@@ -30,8 +30,8 @@ public class NeuralNetwork {
             // Forward propagation
             var fp = new ArrayList<ForwardPropResult>();
             var activation = dataFeatures;
-            for (FullyConnected layer : layers) {
-                var layerResult = layer.forwardPropagate(activation);
+            for (var layer : layers) {
+                var layerResult = layer.forwardPropagate(activation, true);
                 activation = layerResult.a;
                 fp.add(layerResult);
             }
@@ -70,8 +70,8 @@ public class NeuralNetwork {
      */
     public Tensor predict(Tensor dataFeatures) {
         var activation = dataFeatures;
-        for (FullyConnected layer : layers) {
-            var layerResult = layer.forwardPropagate(activation);
+        for (var layer : layers) {
+            var layerResult = layer.forwardPropagate(activation, false);
             activation = layerResult.a;
         }
         return activation;

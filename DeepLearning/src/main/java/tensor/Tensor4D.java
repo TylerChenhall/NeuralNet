@@ -2,7 +2,6 @@ package tensor;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -35,6 +34,31 @@ public class Tensor4D extends Tensor {
                 for (int k = 0; k < inputData[i][j].length; k++) {
                     for (int l = 0; l < inputData[i][j][k].length; l++) {
                         data[i][j][k][l] = inputData[i][j][k][l];
+                    }
+                }
+            }
+        }
+    }
+
+    public Tensor4D(List<Integer> shape, double[] inputData) {
+        super(shape);
+        if (shape.size() != 4) {
+            throw new IllegalArgumentException("Invalid dimensions for Tensor4D.");
+        }
+
+        int n0 = shape.get(0);
+        int n1 = shape.get(1);
+        int n2 = shape.get(2);
+        int n3 = shape.get(3);
+
+        data = new double[n0][n1][n2][n3];
+        int position = 0;
+        for (int i = 0; i < n0; i++) {
+            for (int j = 0; j < n1; j++) {
+                for (int k = 0; k < n2; k++) {
+                    for (int l = 0; l < n3; l++) {
+                        data[i][j][k][l] = inputData[position];
+                        position++;
                     }
                 }
             }

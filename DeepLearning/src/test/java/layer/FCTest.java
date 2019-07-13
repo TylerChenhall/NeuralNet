@@ -31,7 +31,7 @@ public class FCTest {
         var groundTruths = new Tensor2D(classes);
         
         // Propagate the layer on the dataset
-        var results = layer.forwardPropagate(inputTensor);
+        var results = layer.forwardPropagate(inputTensor, false);
         var predictions = results.a;
         
         // Evaluate results
@@ -47,7 +47,7 @@ public class FCTest {
         System.out.println(cost);
         //System.out.println(costDerivatives);
         
-        var list = new ArrayList<FullyConnected>();
+        var list = new ArrayList<Layer>();
         list.add(layer);
         var optimizer = new GradientDescent(0.12);
         
@@ -65,7 +65,7 @@ public class FCTest {
         
         var untrainedLayer = new FullyConnected(
                 new Activation(ActivationType.Sigmoid), 1, 2);
-        var untrainedList = new ArrayList<FullyConnected>();
+        var untrainedList = new ArrayList<Layer>();
         untrainedList.add(untrainedLayer);
         
         // Confirmed to work:

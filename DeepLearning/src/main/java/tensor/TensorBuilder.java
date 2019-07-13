@@ -1,5 +1,6 @@
 package tensor;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -7,8 +8,18 @@ import java.util.Random;
  * 
  * @author tyler
  */
-public class Tensor2DBuilder {
+public class TensorBuilder {
     public static final long DEFAULT_SEED = 2019L;
+    
+    public static Tensor buildFromShapeAndValues(List<Integer> shape, double[] values) {
+        if (shape.size() == 4) {
+            return new Tensor4D(shape, values);
+        }
+        if (shape.size() == 2) {
+            return new Tensor2D(shape, values);
+        }
+        throw new IllegalArgumentException("Only supports 2D and 4D Tensor creation.");
+    }
     
     public static Tensor2D heInitialization(int nrows, int ncols, long seed) {
         double standardDeviation = Math.sqrt(2.0 / ncols);
