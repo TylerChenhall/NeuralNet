@@ -3,6 +3,7 @@ package layer;
 import activation.Activation;
 import java.util.HashMap;
 import java.util.Map;
+import regularize.Regularizer;
 import tensor.Tensor;
 import tensor.Tensor2D;
 import tensor.TensorBuilder;
@@ -105,8 +106,9 @@ public class FullyConnected implements Layer {
     }
     
     @Override
-    public void updateParameters(Map<String, Tensor> deltaParameters) {
-        weights = (Tensor2D) weights.add(deltaParameters.get(D_WEIGHTS));
+    public void updateParameters(Map<String, Tensor> deltaParameters, Regularizer r) {
+        weights = (Tensor2D) weights.add(deltaParameters.get(D_WEIGHTS))
+                .subtract(r.computeRegularizedDerivatives(weights));
         bias = (Tensor2D) bias.add(deltaParameters.get(D_BIAS));
     }
     

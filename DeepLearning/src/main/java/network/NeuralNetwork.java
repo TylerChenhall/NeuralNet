@@ -7,6 +7,8 @@ import layer.BackPropResult;
 import layer.ForwardPropResult;
 import layer.Layer;
 import optimize.Optimizer;
+import regularize.Regularizer;
+import regularize.Unregularized;
 import tensor.Tensor;
 
 public class NeuralNetwork {
@@ -14,17 +16,28 @@ public class NeuralNetwork {
     private final Cost costFunction;
     private final List<Layer> layers;
     private final Optimizer optimizer;
+    private final Regularizer regularizer;
+    
+    public NeuralNetwork(List<Layer> layers, Cost costFunction, Optimizer optimizer, Regularizer regularizer) {
+        this.layers = layers;
+        this.costFunction = costFunction;
+        this.optimizer = optimizer;
+        this.regularizer = regularizer;
+    }
 
     public NeuralNetwork(List<Layer> layers, Cost costFunction, Optimizer optimizer) {
         this.layers = layers;
         this.costFunction = costFunction;
         this.optimizer = optimizer;
+        this.regularizer = new Unregularized();
     }
 
     public ArrayList<Double> train(Tensor dataFeatures, Tensor dataLabels, int epochs) {
         var epochCosts = new ArrayList<Double>();
         for (int i = 0; i < epochs; i++) {
+            // For now, m is fixed, but this may vary when using mini-batches.
             // TODO: at some point, implement mini-batch support
+            regularizer.setBatchSize(dataFeatures.mDim());
             
             // Forward propagation
             var fp = new ArrayList<ForwardPropResult>();
@@ -34,10 +47,6 @@ public class NeuralNetwork {
                 activation = layerResult.a;
                 fp.add(layerResult);
             }
-            
-            // Cost
-            var cost = costFunction.computeCost(activation, dataLabels);
-            epochCosts.add(cost);
             
             var dA = costFunction.computeCostDerivative(activation, dataLabels);
             
@@ -54,8 +63,14 @@ public class NeuralNetwork {
             for (int j = 0; j < layers.size(); j++) {
                 var dParameters = bp[j].dParameters;
                 var deltaParameters = optimizer.computeParameterUpdates(dParameters, j);
-                layers.get(j).updateParameters(deltaParameters);
+                layers.get(j).updateParameters(deltaParameters, regularizer);
             }
+            
+            // Cost
+            var cost = costFunction.computeCost(activation, dataLabels)
+                    + regularizer.getRegularizerCost();
+            epochCosts.add(cost);
+            regularizer.resetRunningCost();
         }
         return epochCosts;
     }

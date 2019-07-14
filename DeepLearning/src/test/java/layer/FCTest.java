@@ -9,6 +9,7 @@ import optimize.Adam;
 import optimize.GradientDescent;
 import optimize.Momentum;
 import optimize.RMSProp;
+import regularize.L2Regularizer;
 import tensor.Tensor2D;
 
 public class FCTest {
@@ -83,7 +84,8 @@ public class FCTest {
         //   Adam(0.06, 0.9, 0.999) - lower learning rate required for convergence
         var trainingOptimizer = new Adam(0.06, 0.9, 0.999);
         var trainableNetwork = 
-                new NeuralNetwork(untrainedList, costFunction, trainingOptimizer);
+                new NeuralNetwork(untrainedList, costFunction, trainingOptimizer,
+                        new L2Regularizer(0.06, 10.0));
         
         var initialCost = trainableNetwork.evaluate(inputTensor, groundTruths);
         

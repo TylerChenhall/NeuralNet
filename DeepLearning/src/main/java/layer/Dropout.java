@@ -3,6 +3,7 @@ package layer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import regularize.Regularizer;
 import tensor.Tensor;
 import tensor.TensorBuilder;
 
@@ -61,7 +62,7 @@ public class Dropout implements Layer {
     }
 
     @Override
-    public void updateParameters(Map<String, Tensor> deltaParameters) {
+    public void updateParameters(Map<String, Tensor> deltaParameters, Regularizer r) {
         // There are no parameters to update.
         return;
     }

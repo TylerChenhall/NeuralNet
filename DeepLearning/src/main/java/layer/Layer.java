@@ -1,6 +1,7 @@
 package layer;
 
 import java.util.Map;
+import regularize.Regularizer;
 import tensor.Tensor;
 
 /**
@@ -11,5 +12,5 @@ public interface Layer {
     
     public BackPropResult backwardPropagate(Tensor dA, ForwardPropResult cache);
     
-    public void updateParameters(Map<String, Tensor> deltaParameters);
+    public void updateParameters(Map<String, Tensor> deltaParameters, Regularizer r);
 }

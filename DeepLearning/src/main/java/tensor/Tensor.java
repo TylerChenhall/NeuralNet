@@ -50,6 +50,10 @@ public abstract class Tensor {
     public Tensor power(Tensor t) {
         return applyBinary(t, Math::pow);
     }
+    
+    public Tensor abs() {
+        return applyUnary(Math::abs);
+    }
 
     public Tensor exponentiate() {
         return applyUnary(Math::exp);
